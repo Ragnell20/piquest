@@ -1,0 +1,34 @@
+[gd_scene load_steps=6 format=3 uid="uid://cn5rw7l3nfv4t"]
+
+[ext_resource type="Texture2D" uid="uid://d234jq1vutl40" path="res://assets/torch/torch_1.png" id="1_y46mu"]
+[ext_resource type="Texture2D" uid="uid://pxa3fgcfk70m" path="res://assets/torch/torch_2.png" id="2_4okjr"]
+[ext_resource type="Texture2D" uid="uid://yiwfsrcxtven" path="res://assets/torch/torch_3.png" id="3_7j1oh"]
+[ext_resource type="Texture2D" uid="uid://mp06svfhn3w2" path="res://assets/torch/torch_4.png" id="4_5rfit"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_nrqwu"]
+animations = [{
+"frames": [{
+"duration": 0.31,
+"texture": ExtResource("1_y46mu")
+}, {
+"duration": 1.0,
+"texture": ExtResource("2_4okjr")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_7j1oh")
+}, {
+"duration": 1.0,
+"texture": ExtResource("4_5rfit")
+}],
+"loop": true,
+"name": &"default",
+"speed": 5.0
+}]
+
+[node name="Node2D" type="Node2D"]
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+texture_filter = 1
+sprite_frames = SubResource("SpriteFrames_nrqwu")
+autoplay = "default"
+frame_progress = 0.530198

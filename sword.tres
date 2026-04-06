@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="WeaponData" load_steps=4 format=3 uid="uid://b5drrdieup1op"]
+
+[ext_resource type="Script" path="res://scripts/weaponData.gd" id="1_viu6s"]
+[ext_resource type="Texture2D" uid="uid://d20mueb1a2soq" path="res://assets/Weapons/Wood.png" id="2_6n5p3"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_sx5ld"]
+atlas = ExtResource("2_6n5p3")
+region = Rect2(2.00368, 0, 11.7244, 48.0254)
+
+[resource]
+script = ExtResource("1_viu6s")
+name = "Silah"
+texture = SubResource("AtlasTexture_sx5ld")
+damage = 10
+cooldown = 0.5
+knockback_force = 170.0
+element = 0
+weapon_type = 0
+hitbox_width = 32.0
+hitbox_height = 48.0
+attack_range = 50.0
+attack_arc = 60.0

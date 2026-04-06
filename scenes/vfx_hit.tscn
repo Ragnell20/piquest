@@ -1,0 +1,49 @@
+[gd_scene load_steps=9 format=3 uid="uid://dcqe4e4k6yrml"]
+
+[ext_resource type="Texture2D" uid="uid://3id1lgwrwjt5" path="res://assets/icons/Full Spritesheet/FX001/FX001_03.png" id="1_m5m51"]
+[ext_resource type="Texture2D" uid="uid://bxelgnwsroli4" path="res://assets/icons/Full Spritesheet/FX001/FX001_04.png" id="2_caxwr"]
+[ext_resource type="Texture2D" uid="uid://dj11accjhwbeg" path="res://assets/icons/Full Spritesheet/FX001/FX001_05.png" id="3_1kp3v"]
+[ext_resource type="Script" path="res://VFX_Hit.gd" id="4_ygspi"]
+[ext_resource type="AudioStream" uid="uid://c3towf27nkoik" path="res://sfx/RetroSFXMurkje/Hit&Hurt/Hit_Hurt2.wav" id="5_2m21p"]
+[ext_resource type="AudioStream" uid="uid://b8pwmgcodg2kb" path="res://sfx/RetroSFXMurkje/Hit&Hurt/Hit_Hurt6.wav" id="5_ufugg"]
+[ext_resource type="AudioStream" uid="uid://ycvidn47yc6c" path="res://sfx/RetroSFXMurkje/Hit&Hurt/collision/SE-Collision_02.ogg" id="6_oqw5s"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_x7g2e"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_m5m51")
+}, {
+"duration": 1.0,
+"texture": ExtResource("2_caxwr")
+}, {
+"duration": 1.0,
+"texture": ExtResource("3_1kp3v")
+}],
+"loop": false,
+"name": &"default",
+"speed": 5.0
+}]
+
+[node name="VFX_Hit" type="AnimatedSprite2D"]
+texture_filter = 1
+position = Vector2(129, -56.5)
+scale = Vector2(1.25, 1.21875)
+sprite_frames = SubResource("SpriteFrames_x7g2e")
+autoplay = "default"
+frame = 2
+frame_progress = 1.0
+speed_scale = 3.6
+script = ExtResource("4_ygspi")
+
+[node name="Standart" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("5_2m21p")
+
+[node name="Fast" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("6_oqw5s")
+
+[node name="Heavy" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("5_ufugg")
+
+[connection signal="animation_finished" from="." to="." method="_on_animation_finished"]
+[connection signal="ready" from="." to="." method="_on_ready"]

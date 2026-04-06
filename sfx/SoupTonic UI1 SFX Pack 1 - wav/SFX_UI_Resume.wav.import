@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://dvhieiak5nko6"
+path="res://.godot/imported/SFX_UI_Resume.wav-bbcb152eed97972f7a9aaf618aced59a.sample"
+
+[deps]
+
+source_file="res://sfx/SoupTonic UI1 SFX Pack 1 - wav/SFX_UI_Resume.wav"
+dest_files=["res://.godot/imported/SFX_UI_Resume.wav-bbcb152eed97972f7a9aaf618aced59a.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=0

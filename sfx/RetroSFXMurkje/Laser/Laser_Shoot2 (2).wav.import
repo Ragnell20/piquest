@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://bmoslq6rj1tc6"
+path="res://.godot/imported/Laser_Shoot2 (2).wav-b5a201c0cf7ba642394fbd9b04a0dddd.sample"
+
+[deps]
+
+source_file="res://sfx/RetroSFXMurkje/Laser/Laser_Shoot2 (2).wav"
+dest_files=["res://.godot/imported/Laser_Shoot2 (2).wav-b5a201c0cf7ba642394fbd9b04a0dddd.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=0

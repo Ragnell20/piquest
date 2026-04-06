@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://bgdfibj57asxc"
+path="res://.godot/imported/SFX_UI_Pause.wav-011a70c876cb10ac0ef43558f275b605.sample"
+
+[deps]
+
+source_file="res://sfx/SoupTonic UI1 SFX Pack 1 - wav/SFX_UI_Pause.wav"
+dest_files=["res://.godot/imported/SFX_UI_Pause.wav-011a70c876cb10ac0ef43558f275b605.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=0
