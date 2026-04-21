@@ -3,7 +3,7 @@
 [ext_resource type="Texture2D" uid="uid://3id1lgwrwjt5" path="res://assets/icons/Full Spritesheet/FX001/FX001_03.png" id="1_m5m51"]
 [ext_resource type="Texture2D" uid="uid://bxelgnwsroli4" path="res://assets/icons/Full Spritesheet/FX001/FX001_04.png" id="2_caxwr"]
 [ext_resource type="Texture2D" uid="uid://dj11accjhwbeg" path="res://assets/icons/Full Spritesheet/FX001/FX001_05.png" id="3_1kp3v"]
-[ext_resource type="Script" path="res://VFX_Hit.gd" id="4_ygspi"]
+[ext_resource type="Script" path="res://vfx_hit.gd" id="4_ygspi"]
 [ext_resource type="AudioStream" uid="uid://c3towf27nkoik" path="res://sfx/RetroSFXMurkje/Hit&Hurt/Hit_Hurt2.wav" id="5_2m21p"]
 [ext_resource type="AudioStream" uid="uid://b8pwmgcodg2kb" path="res://sfx/RetroSFXMurkje/Hit&Hurt/Hit_Hurt6.wav" id="5_ufugg"]
 [ext_resource type="AudioStream" uid="uid://ycvidn47yc6c" path="res://sfx/RetroSFXMurkje/Hit&Hurt/collision/SE-Collision_02.ogg" id="6_oqw5s"]

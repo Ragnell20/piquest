@@ -6,12 +6,12 @@ extends CharacterBody2D
 @export var wander_speed: float = 30.0
 @export var wander_wait_time: float = 2.0
 @export var wander_move_time: float = 3.0
-
+signal died
 @export var hp: int = 30               # Düşman Canı
 @export var knockback_strength: float = 150.0 # Geri sekme gücü
 
 # Hasar efekti sahnesini yükle
-const VFX_HIT_SCENE = preload("res://scenes/VFX_Hit.tscn")
+const VFX_HIT_SCENE = preload("res://scenes/vfx_hit.tscn")
 
 var is_hurt: bool = false # Hasar alma durumu
 
@@ -29,10 +29,10 @@ var player_in_attack_range: bool = false
 var player_target: CharacterBody2D = null
 var is_attacking: bool = false
 var is_on_cooldown: bool = false
-
+var is_invincible: bool = false
 # Wander değişkenleri
 var wander_timer: Timer
-var is_wandering: bool = false
+
 var wander_direction: Vector2 = Vector2.ZERO
 var wander_state: String = "wait" # "wait" veya "move"
 
@@ -70,39 +70,30 @@ func _ready():
 	
 
 func _physics_process(_delta):
-	
-	# Hasar durumu her şeyden önce kontrol edilir
 	if is_hurt:
-		# Geri sekerken yavaşla
 		velocity = velocity.move_toward(Vector2.ZERO, 200 * _delta)
 		move_and_slide()
 		return
 	
-	# Saldırı sırasında velocity değişmez (lunge devam eder)
 	if is_attacking:
-		pass
-	# Cooldown'da yumuşak bir şekilde yavaşla (ani duruş yerine)
-	elif is_on_cooldown:
+		move_and_slide()  # pass yerine
+		return
+	
+	if is_on_cooldown:
 		velocity = velocity.move_toward(Vector2.ZERO, 100 * _delta)
-	# Saldırı menzilinde lunge
 	elif player_in_attack_range and player_target != null:
-		# Player'ı gördüğünde wander timer'ı durdur
 		if wander_timer.time_left > 0:
 			wander_timer.stop()
 		attack_lunge(player_target)
-	# Chase durumu
 	elif player_in_chase_range and player_target != null:
-		# Player'ı gördüğünde wander timer'ı durdur (chase için)
 		if wander_timer.time_left > 0:
 			wander_timer.stop()
 		chase_player(player_target)
-	# Player yoksa wander yap
 	else:
 		wander()
 	
 	move_and_slide()
 	
-	# Animasyon kontrolü
 	if not is_attacking and not is_hurt:
 		if velocity.length() == 0:
 			animation_player.play("idle")
@@ -126,7 +117,8 @@ func start_wander_wait():
 	wander_direction = Vector2.ZERO
 	velocity = Vector2.ZERO
 	wander_timer.wait_time = wander_wait_time
-	wander_timer.start()
+	if wander_timer.is_inside_tree():
+		wander_timer.start() 
 
 func start_wander_move():
 	wander_state = "move"
@@ -170,7 +162,8 @@ func update_sprite_direction():
 
 func take_damage(amount: int, damage_type: String, damage_source_position: Vector2) -> void:
 	if hp <= 0: return # Zaten ölü işlem yapılıyor
-
+	if is_invincible: return 
+	is_invincible = true
 	hp -= amount
 	print("Slime HP: ", hp)
 	
@@ -192,16 +185,18 @@ func take_damage(amount: int, damage_type: String, damage_source_position: Vecto
 	if hp <= 0:
 		# Eğer öldüyse, Ölüm Fonksiyonunu çağır (ama beklemeden)
 		die()
+		return
 	else:
 		# Eğer ölmediyse normal HURT (Sersemleme) durumuna geç
 		is_hurt = true
-		current_state = State.HURT
+		await get_tree().create_timer(0.4).timeout
 		
+		current_state = State.HURT
 		# Rengi normale döndür
 		await get_tree().create_timer(0.2).timeout
 		sprite.modulate = Color.WHITE
 		is_hurt = false
-
+		is_invincible = false
 func die() -> void:
 	# 1. Hemen durdurma! Önce 'HURT' durumuna geç ki fizik motoru onu kaydırsın.
 	current_state = State.HURT
@@ -225,7 +220,8 @@ func die() -> void:
 	# 6. Animasyon bitene kadar bekle
 	await animation_player.animation_finished
 	
-	# 7. Ve sil
+	# 7. Ve sil ve oda için sinyal ver
+	emit_signal("died")
 	queue_free()
 
 
@@ -233,7 +229,7 @@ func die() -> void:
 
 
 func _on_detection_area_body_entered(body):
-	if body is CharacterBody2D:
+	if body.is_in_group("player"):
 		player_in_chase_range = true
 		player_target = body
 		# Player gelince wander'ı durdur
@@ -272,7 +268,8 @@ func _on_animation_finished(anim_name):
 		is_attacking = false
 		velocity = Vector2.ZERO
 		is_on_cooldown = true
-		attack_cooldown_timer.start()
+		if attack_cooldown_timer.is_stopped():
+			attack_cooldown_timer.start()
 
 func _on_attack_cooldown_timer_timeout():
 	is_on_cooldown = false

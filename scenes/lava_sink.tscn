@@ -1,0 +1,49 @@
+[gd_scene load_steps=6 format=3 uid="uid://kl7f5aw8wdlw"]
+
+[ext_resource type="Texture2D" uid="uid://rsgufwma6lhd" path="res://assets/dungeon pixel/0x72_DungeonTilesetII_v1.7/0x72_DungeonTilesetII_v1.7.png" id="1_m15ob"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_yvvor"]
+atlas = ExtResource("1_m15ob")
+region = Rect2(96, 13, 16, 35)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_qyfi6"]
+atlas = ExtResource("1_m15ob")
+region = Rect2(64, 13, 16, 35)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_eojpx"]
+atlas = ExtResource("1_m15ob")
+region = Rect2(80, 13, 16, 35)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_cory0"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_yvvor")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_qyfi6")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_yvvor")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_qyfi6")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_eojpx")
+}],
+"loop": true,
+"name": &"default",
+"speed": 5.0
+}]
+
+[node name="LavaSink" type="Node2D"]
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+texture_filter = 1
+position = Vector2(0, -1.25)
+scale = Vector2(1, 0.928571)
+sprite_frames = SubResource("SpriteFrames_cory0")
+autoplay = "default"
+frame_progress = 0.368794
+speed_scale = 1.42

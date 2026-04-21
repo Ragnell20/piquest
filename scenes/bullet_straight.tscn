@@ -1,0 +1,71 @@
+[gd_scene load_steps=8 format=3 uid="uid://du43dq0h8dq20"]
+
+[ext_resource type="Script" path="res://Projectile.gd" id="1_jj4gq"]
+[ext_resource type="Texture2D" uid="uid://8fof6dav50cf" path="res://assets/Full Spritesheet/16x16.png" id="2_vdkpj"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2lk5u"]
+atlas = ExtResource("2_vdkpj")
+region = Rect2(144, 1024, 16, 16)
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_yhve5"]
+radius = 3.42389
+height = 20.3721
+
+[sub_resource type="Animation" id="Animation_7qek2"]
+resource_name = "straight"
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.2, 0.4, 0.6),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 1,
+"values": [Color(1, 1, 1, 1), Color(1, 0.8, 0.552941, 1), Color(1, 1, 1, 1), Color(1, 0.760784, 0.192157, 1)]
+}
+
+[sub_resource type="Animation" id="Animation_56cyu"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(1, 1, 1, 1)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_mlfmi"]
+_data = {
+"RESET": SubResource("Animation_56cyu"),
+"straight": SubResource("Animation_7qek2")
+}
+
+[node name="bullet_straight" type="Area2D"]
+collision_layer = 0
+collision_mask = 2
+script = ExtResource("1_jj4gq")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture_filter = 1
+texture = SubResource("AtlasTexture_2lk5u")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(1, 0)
+rotation = -1.5708
+scale = Vector2(-0.335517, -0.938906)
+shape = SubResource("CapsuleShape2D_yhve5")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {
+"": SubResource("AnimationLibrary_mlfmi")
+}
+autoplay = "straight"
+speed_scale = 4.26

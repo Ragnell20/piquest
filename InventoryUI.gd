@@ -2,23 +2,20 @@ extends CanvasLayer
 
 var player = null
 @onready var grid = %GridContainer
-@onready var stats_label = %RichTextLabel 
+@onready var stats_label = %RichTextLabel
+
 
 var current_focus_index = 0
 var slots = []
 
-
-# Ses efektleri (AudioStreamPlayer node'ları sahneye eklemen gerekecek)
-@onready var navigate_sound = $SelectSound   # Kaydırma sesi
-@onready var select_sound = %NavigateSound 
- 
+@onready var navigate_sound = $SelectSound
+@onready var select_sound = %NavigateSound
 
 func _ready():
 	visible = false
-	
-	# GridContainer sütun sayısını ayarla (4 sütunlu grid)
 	if grid:
 		grid.columns = 4
+
 
 func set_player_reference(p):
 	player = p
@@ -27,7 +24,6 @@ func _input(event):
 	if event.is_action_pressed("toggle_inventory"):
 		toggle_inventory()
 	
-	# Envanter açıkken gamepad kontrolü
 	if visible:
 		if event.is_action_pressed("ui_right"):
 			navigate_slots(1)
@@ -36,13 +32,12 @@ func _input(event):
 			navigate_slots(-1)
 			play_navigate_sound()
 		elif event.is_action_pressed("ui_down"):
-			navigate_slots(grid.columns)
+			navigate_slots(4)
 			play_navigate_sound()
 		elif event.is_action_pressed("ui_up"):
-			navigate_slots(-grid.columns)
+			navigate_slots(-4)
 			play_navigate_sound()
 		elif event.is_action_pressed("ui_accept") or event.is_action_pressed("ui_select"):
-			# Enter veya gamepad A/X butonu ile seçim
 			if slots.size() > 0 and current_focus_index < slots.size():
 				play_select_sound()
 				on_slot_clicked(current_focus_index)
@@ -53,7 +48,6 @@ func toggle_inventory():
 	
 	if visible:
 		update_ui()
-		# Envanter açıldığında ilk slotu seç
 		current_focus_index = 0
 		if slots.size() > 0:
 			focus_slot(current_focus_index)
@@ -65,39 +59,26 @@ func navigate_slots(direction: int):
 	if slots.size() == 0:
 		return
 	
-	# Mevcut focus'u kaldır
-	unfocus_slot(current_focus_index)
-	
-	# Yeni index hesapla
+	var old_index = current_focus_index
 	current_focus_index += direction
 	
-	# Sınırları kontrol et (wrap around)
 	if current_focus_index < 0:
 		current_focus_index = slots.size() - 1
 	elif current_focus_index >= slots.size():
 		current_focus_index = 0
 	
-	# Yeni slotu seç
+	unfocus_slot(old_index)  # ← önce eskiyi unfocus et
 	focus_slot(current_focus_index)
 
 func focus_slot(index: int):
 	if index < 0 or index >= slots.size():
 		return
-	
 	var slot_data = slots[index]
-	var card_container = slot_data.container
-	var front_side = slot_data.front
-	var back_side = slot_data.back
-	
-	# Kartı çevir ve vurgula
-	front_side.visible = false
-	back_side.visible = true
-	
-	# PARLAK KENARLIK EFEKTİ
-	# StyleBox ile kenarlık ekleme
+	slot_data.front.visible = false
+	slot_data.back.visible = true
 	var stylebox = StyleBoxFlat.new()
-	stylebox.bg_color = Color(0.2, 0.2, 0.25, 0.8)  # Koyu arka plan
-	stylebox.border_color = Color.GOLD  # Altın kenarlık
+	stylebox.bg_color = Color(0.2, 0.2, 0.25, 0.8)
+	stylebox.border_color = Color.GOLD
 	stylebox.border_width_left = 3
 	stylebox.border_width_right = 3
 	stylebox.border_width_top = 3
@@ -106,33 +87,19 @@ func focus_slot(index: int):
 	stylebox.corner_radius_top_right = 8
 	stylebox.corner_radius_bottom_left = 8
 	stylebox.corner_radius_bottom_right = 8
-	
-	# Glow efekti için shadow
-	stylebox.shadow_color = Color(1.0, 0.84, 0.0, 0.5)  # Altın glow
+	stylebox.shadow_color = Color(1.0, 0.84, 0.0, 0.5)
 	stylebox.shadow_size = 8
 	stylebox.shadow_offset = Vector2(0, 0)
-	
-	card_container.add_theme_stylebox_override("panel", stylebox)
-	card_container.modulate = Color(1.2, 1.2, 1.0)  # Hafif parlaklık
-	
-	# Slotun butonunu focus'la (klavye navigasyonu için)
-	if slot_data.button:
-		slot_data.button.grab_focus()
+	slot_data.container.add_theme_stylebox_override("panel", stylebox)
+	slot_data.container.modulate = Color(1.2, 1.2, 1.0)
+
 
 func unfocus_slot(index: int):
 	if index < 0 or index >= slots.size():
 		return
-	
 	var slot_data = slots[index]
-	var card_container = slot_data.container
-	var front_side = slot_data.front
-	var back_side = slot_data.back
-	
-	# Kartı geri çevir
-	front_side.visible = true
-	back_side.visible = false
-	
-	# Normal kenarlık
+	slot_data.front.visible = true
+	slot_data.back.visible = false
 	var stylebox = StyleBoxFlat.new()
 	stylebox.bg_color = Color(0.15, 0.15, 0.2, 0.9)
 	stylebox.border_color = Color(0.4, 0.4, 0.5)
@@ -144,28 +111,27 @@ func unfocus_slot(index: int):
 	stylebox.corner_radius_top_right = 8
 	stylebox.corner_radius_bottom_left = 8
 	stylebox.corner_radius_bottom_right = 8
-	
-	card_container.add_theme_stylebox_override("panel", stylebox)
-	card_container.modulate = Color.WHITE
+	slot_data.container.add_theme_stylebox_override("panel", stylebox)
+	slot_data.container.modulate = Color.WHITE
 
 func update_ui():
-	if grid == null: return
+	if grid == null or player == null:
+		return
+	if player.inventory.size() == 0:
+		return
 	
-	# Eski slotları temizle
 	for child in grid.get_children():
-		child.queue_free()
-	
+		grid.remove_child(child)
+		child.free()
 	slots.clear()
 	
-	# Her silah için slot oluştur
 	for i in range(player.inventory.size()):
 		var weapon_data = player.inventory[i]
+		if weapon_data == null:
+			continue
 		
-		# Ana container (Kartın kendisi)
 		var card_container = PanelContainer.new()
 		card_container.custom_minimum_size = Vector2(100, 120)
-		
-		# Başlangıç stili
 		var default_style = StyleBoxFlat.new()
 		default_style.bg_color = Color(0.15, 0.15, 0.2, 0.9)
 		default_style.border_color = Color(0.4, 0.4, 0.5)
@@ -179,27 +145,26 @@ func update_ui():
 		default_style.corner_radius_bottom_right = 8
 		card_container.add_theme_stylebox_override("panel", default_style)
 		
-		# İçerik için VBoxContainer
 		var vbox = VBoxContainer.new()
 		vbox.alignment = BoxContainer.ALIGNMENT_CENTER
 		card_container.add_child(vbox)
 		
-		# ÖN YÜZ: Silah resmi
+		# Ön yüz
 		var front_side = TextureRect.new()
 		front_side.name = "FrontSide"
-		front_side.texture = weapon_data.texture
+		if weapon_data.texture:
+			front_side.texture = weapon_data.texture
 		front_side.expand_mode = TextureRect.EXPAND_FIT_WIDTH_PROPORTIONAL
 		front_side.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		front_side.custom_minimum_size = Vector2(80, 80)
 		vbox.add_child(front_side)
 		
-		# ARKA YÜZ: İstatistikler (başta gizli)
+		# Arka yüz
 		var back_side = VBoxContainer.new()
 		back_side.name = "BackSide"
 		back_side.visible = false
 		back_side.alignment = BoxContainer.ALIGNMENT_CENTER
 		
-		# Stat labelları - RENKLERLE
 		var name_label = Label.new()
 		name_label.text = weapon_data.name
 		name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -207,7 +172,6 @@ func update_ui():
 		name_label.add_theme_color_override("font_color", Color.GOLD)
 		back_side.add_child(name_label)
 		
-		# Boşluk
 		var spacer1 = Control.new()
 		spacer1.custom_minimum_size = Vector2(0, 5)
 		back_side.add_child(spacer1)
@@ -226,16 +190,13 @@ func update_ui():
 		
 		var element_label = Label.new()
 		var element_name = WeaponData.ElementType.keys()[weapon_data.element]
-		# Element'e göre renk
-		var element_color = get_element_color(weapon_data.element)
 		element_label.text = "🔥 %s" % element_name
 		element_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		element_label.add_theme_color_override("font_color", element_color)
+		element_label.add_theme_color_override("font_color", get_element_color(weapon_data.element))
 		back_side.add_child(element_label)
 		
 		vbox.add_child(back_side)
 		
-		# Tıklanabilir alan için Button
 		var slot_button = Button.new()
 		slot_button.custom_minimum_size = Vector2(100, 120)
 		slot_button.flat = true
@@ -243,7 +204,6 @@ func update_ui():
 		slot_button.focus_mode = Control.FOCUS_ALL
 		card_container.add_child(slot_button)
 		
-		# Slot verisini kaydet
 		slots.append({
 			"container": card_container,
 			"front": front_side,
@@ -252,60 +212,38 @@ func update_ui():
 			"index": i
 		})
 		
-		# Mouse olayları
 		slot_button.mouse_entered.connect(func():
+			unfocus_slot(current_focus_index)
 			current_focus_index = i
 			focus_slot(i)
 		)
-		
 		slot_button.mouse_exited.connect(func():
 			unfocus_slot(i)
 		)
 		
-		# Gamepad focus olayları
-		slot_button.focus_entered.connect(func():
-			current_focus_index = i
-			focus_slot(i)
-		)
-		
-		slot_button.focus_exited.connect(func():
-			unfocus_slot(i)
-		)
-		
-		# Tıklama olayı
 		slot_button.pressed.connect(func():
-			play_select_sound()  # ← SES EKLE
+			play_select_sound()
 			on_slot_clicked(i)
-)
+		)
 		
-		# Grid'e ekle
 		grid.add_child(card_container)
 
 func get_element_color(element: int) -> Color:
 	match element:
-		WeaponData.ElementType.FIRE:
-			return Color.ORANGE_RED
-		WeaponData.ElementType.ICE:
-			return Color.CYAN
-		WeaponData.ElementType.LIGHTNING:
-			return Color.YELLOW
-		_:
-			return Color.WHITE
+		WeaponData.ElementType.FIRE: return Color.ORANGE_RED
+		WeaponData.ElementType.ICE: return Color.CYAN
+		WeaponData.ElementType.LIGHTNING: return Color.YELLOW
+		_: return Color.WHITE
 
 func on_slot_clicked(index):
 	if player:
 		player.equip_weapon(index)
 		toggle_inventory()
 
-# SES FONKSİYONLARI
 func play_navigate_sound():
 	if navigate_sound:
 		navigate_sound.play()
 
-
 func play_select_sound():
 	if select_sound:
 		select_sound.play()
-
-
-

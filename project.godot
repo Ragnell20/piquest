@@ -11,19 +11,27 @@ config_version=5
 [application]
 
 config/name="Pi Quest"
-run/main_scene="res://scenes/world.tscn"
+run/main_scene="res://scenes/Game.tscn"
 config/features=PackedStringArray("4.2", "GL Compatibility")
 config/icon="res://icon.svg"
 
 [autoload]
 
 LootManager="*res://LootManager.gd"
+GameManager="*res://scripts/game_manager.gd"
+
+[display]
+
+window/size/resizable=false
+window/stretch/mode="canvas_items"
 
 [file_customization]
 
 folder_colors={
 "res://assets/": "red",
-"res://sfx/": "blue"
+"res://music/": "green",
+"res://sfx/": "blue",
+"res://weapons/": "orange"
 }
 
 [input]

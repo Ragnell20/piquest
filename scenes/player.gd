@@ -5,8 +5,11 @@ extends CharacterBody2D
 
 # --- Değişkenler ---
 @export var speed: float = 100.0
-@export var hp: int = 100 # Oyuncunun Canı
+@export var max_hp: int = 100
+@export var hp: int = 100
 @export var iframe_duration: float = 0.3 
+@export var bonus_damage: int = 0
+
 
 var iframe_timer: float = 0.0
 var is_invincible: bool = false
@@ -14,14 +17,15 @@ var is_invincible: bool = false
 const KNOCKBACK_STRENGTH: float = 200.0
 
 #silahlar
-@export var inventory: Array[WeaponData] = [] # Silahları buraya sürükleyeceğiz
-var current_weapon_index: int = 0
+@export var inventory: Array[WeaponData] = [] # Silahlar buraya
+var current_weapon_index: int = -1
 var current_weapon: WeaponData = null
+@export var max_inventory_size: int = 10
 
 var attack_cooldown_timer: float = 0.0
 
 # Hasar efektini (VFX) önceden yükle
-const VFX_HIT_SCENE = preload("res://scenes/VFX_Hit.tscn")
+const VFX_HIT_SCENE = preload("res://scenes/vfx_hit.tscn")
 
 # --- Node Referansları ---
 @onready var animation_player: AnimationPlayer = $AnimationPlayer
@@ -41,14 +45,59 @@ var interactable_in_range: Area2D = null
 
 
 func _ready() -> void:
+
 	sprite.modulate = Color.WHITE # Hasar alma animasyonu için rengi sıfırla
-	
+	hp = max_hp
 	# YENİ: Oyun başlarken kılıç gizli ve zararsız olsun
 	weapon_pivot.visible = false
 	sword_area.monitoring = false
 	inventory_ui.set_player_reference(self)
 	if inventory.size() > 0:
 		equip_weapon(0)
+	else:
+		print("Envanter boş - silah bul!")
+		current_weapon = null  # ← BURAYI EKLE
+		current_weapon_index = -1  # ← BURAYI EKLE
+
+
+func add_weapon_to_inventory(weapon: WeaponData) -> bool:
+	# Envanter dolu mu?
+	print("DEBUG -> Mevcut Boyut: ", inventory.size(), " | Maksimum Limit: ", max_inventory_size)
+	if inventory.size() >= max_inventory_size:
+		print("Envanter dolu!")
+		return false
+	
+	# Silahı ekle
+	inventory.append(weapon)
+	print("Yeni silah eklendi: ", weapon.name)
+	
+	# Eğer hiç silah yoksa otomatik kuşan
+	if current_weapon == null:
+		equip_weapon(inventory.size() - 1)
+	
+	return true
+
+func remove_weapon_from_inventory(index: int) -> bool:
+	if index < 0 or index >= inventory.size():
+		return false
+	
+	var removed_weapon = inventory[index]
+	inventory.remove_at(index)
+	
+	print("Silah çıkarıldı: ", removed_weapon.name)
+	
+	# Eğer kuşanmış silahı attıysak
+	if index == current_weapon_index:
+		current_weapon = null
+		current_weapon_index = -1
+		weapon_pivot.visible = false
+		
+		# Başka silah varsa onu kuşan
+		if inventory.size() > 0:
+			equip_weapon(0)
+	
+	return true
+
 
 
 func _physics_process(delta: float) -> void:
@@ -125,15 +174,27 @@ func _physics_process(delta: float) -> void:
 
 
 func equip_weapon(index: int):
-	if index >= inventory.size():
+	# Geçersiz index kontrolü
+	if index < 0 or index >= inventory.size():
+		print("Geçersiz silah indexi: ", index)
 		return
 	
 	current_weapon_index = index
 	current_weapon = inventory[index]
 	
+	# Null kontrolü
+	if current_weapon == null:
+		print("Silah verisi null!")
+		return
+	
 	# Silahın görselini güncelle
-	if weapon_sprite:
+	if weapon_sprite and current_weapon.texture:
 		weapon_sprite.texture = current_weapon.texture
+	
+	# Silahın boyutunu ayarla
+	weapon_pivot.scale = current_weapon.weapon_scale
+	
+	print("Kuşanılan Silah: ", current_weapon.name)
 	
 	
 	# Pivot'u scale ettiğimiz için hem resim hem de collision (Area2D) büyür/küçülür.
@@ -196,16 +257,26 @@ func attack() -> void:
 	velocity = Vector2.ZERO
 
 
-func _on_sword_area_body_entered(body: CharacterBody2D) -> void:
+func _on_sword_area_body_entered(body) -> void:
 	# Çarptığımız şeyin 'take_damage' fonksiyonu var mı? (Düşman mı?)
 	if body.has_method("take_damage"):
-		# YENİ: Silahın damage_type'ını gönder
+		# Silahın damage_type'ını gönder
 		body.take_damage(
-			current_weapon.damage, 
+			current_weapon.damage+ bonus_damage, 
 			current_weapon.damage_type,  # "fast", "heavy" veya "standard"
 			global_position
 		)
 	
+# Boss için
+func _on_sword_area_area_entered(area: Area2D):
+	if area.name == "HurtBox" and area.get_parent().has_method("take_damage"):
+		area.get_parent().take_damage(
+		 current_weapon.damage + bonus_damage,
+		 current_weapon.damage_type,
+		 global_position
+ 			   )
+
+
 
 # --- DİĞER FONKSİYONLAR (Hasar alma, Etkileşim vb.) ---
 
@@ -255,11 +326,19 @@ func take_damage(amount: int, damage_type: String, damage_source_position: Vecto
 	
 	get_parent().add_child(vfx_instance)
 	vfx_instance.global_position = global_position
-	
+	if hp <= 0:
+		get_tree().paused = false
+		call_deferred("change_to_game_over")
+		return
 	await animation_player.animation_finished
 	is_taking_damage = false
 	# NOT: is_invincible iframe_timer bitince otomatik kapanacak
 
+func change_to_game_over():
+	if GameManager.music_player:
+		GameManager.music_player.stop()
+	await get_tree().create_timer(1.0).timeout
+	get_tree().change_scene_to_file("res://scenes/game_over.tscn")
 
 func _on_interaction_area_area_entered(area: Area2D) -> void:
 	interactable_in_range = area

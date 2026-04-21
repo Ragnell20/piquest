@@ -151,7 +151,7 @@ collision_mask = 3
 motion_mode = 1
 script = ExtResource("1_o0ard")
 detection_range = 7.0
-hp = 100
+hp = 20
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 texture_filter = 1

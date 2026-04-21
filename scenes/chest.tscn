@@ -1,12 +1,22 @@
-[gd_scene load_steps=14 format=3 uid="uid://ddp2vetstsovk"]
+[gd_scene load_steps=19 format=3 uid="uid://ddp2vetstsovk"]
 
 [ext_resource type="Texture2D" uid="uid://bkkbvtik0y8sv" path="res://assets/objects/chest/chest_2.png" id="1_8ikvf"]
 [ext_resource type="Script" path="res://scenes/chest.gd" id="1_kswkg"]
 [ext_resource type="Texture2D" uid="uid://b5d3utorc5fot" path="res://assets/objects/chest/chest_3.png" id="1_v6io2"]
 [ext_resource type="Texture2D" uid="uid://dtahmdlko0mku" path="res://assets/objects/chest/chest_4.png" id="2_472ul"]
+[ext_resource type="Texture2D" uid="uid://rsgufwma6lhd" path="res://assets/dungeon pixel/0x72_DungeonTilesetII_v1.7/0x72_DungeonTilesetII_v1.7.png" id="2_dcqtl"]
 [ext_resource type="Texture2D" uid="uid://f7103qj28ony" path="res://assets/objects/chest/chest_1.png" id="3_r1dcx"]
+[ext_resource type="Texture2D" uid="uid://8fof6dav50cf" path="res://assets/Full Spritesheet/16x16.png" id="3_ry7vw"]
 [ext_resource type="Texture2D" uid="uid://cldcbnintmw7t" path="res://assets/objects/chest/chest_open_3.png" id="4_cyose"]
 [ext_resource type="Texture2D" uid="uid://t6k4nlvgdk48" path="res://assets/objects/chest/chest_open_4.png" id="5_nk7ob"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_74pg1"]
+atlas = ExtResource("2_dcqtl")
+region = Rect2(288, 368, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_c0y63"]
+atlas = ExtResource("3_ry7vw")
+region = Rect2(144, 1088, 16, 16)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_lw11q"]
 size = Vector2(19, 17)
@@ -24,6 +34,18 @@ tracks/0/keys = {
 "transitions": PackedFloat32Array(1),
 "update": 1,
 "values": [ExtResource("1_8ikvf")]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Sprite2D:texture:load_path")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": ["res://.godot/imported/chest_open_4.png-f7962adc2cb01d43dc20cab9b24a2ad0.ctex"]
 }
 
 [sub_resource type="Animation" id="Animation_jvrhh"]
@@ -57,11 +79,39 @@ tracks/0/keys = {
 "values": [ExtResource("2_472ul"), ExtResource("1_8ikvf"), ExtResource("1_8ikvf"), ExtResource("2_472ul"), ExtResource("1_8ikvf"), ExtResource("3_r1dcx"), ExtResource("4_cyose"), ExtResource("5_nk7ob")]
 }
 
+[sub_resource type="Animation" id="Animation_s5goc"]
+resource_name = "opened"
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:texture")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [ExtResource("5_nk7ob")]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Sprite2D:texture:load_path")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": ["res://.godot/imported/chest_open_4.png-f7962adc2cb01d43dc20cab9b24a2ad0.ctex"]
+}
+
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_kktr6"]
 _data = {
 "RESET": SubResource("Animation_35eab"),
 "idle": SubResource("Animation_jvrhh"),
-"open_chest": SubResource("Animation_xwpyo")
+"open_chest": SubResource("Animation_xwpyo"),
+"opened": SubResource("Animation_s5goc")
 }
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_fvpvl"]
@@ -72,6 +122,8 @@ texture_filter = 1
 collision_layer = 3
 collision_mask = 3
 script = ExtResource("1_kswkg")
+hp_icon = SubResource("AtlasTexture_74pg1")
+damage_icon = SubResource("AtlasTexture_c0y63")
 
 [node name="interact_area" type="CollisionShape2D" parent="."]
 position = Vector2(1.5, -1.5)
@@ -82,6 +134,7 @@ shape = SubResource("RectangleShape2D_lw11q")
 libraries = {
 "": SubResource("AnimationLibrary_kktr6")
 }
+autoplay = "idle"
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 texture_filter = 1
