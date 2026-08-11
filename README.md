@@ -34,7 +34,7 @@ cd piquest
 
 A custom GPIO controller was built using push buttons wired to a breadboard, connected to the Raspberry Pi 4's GPIO pins. A Python script polls the buttons at ~100 Hz and maps each press to a keyboard/mouse input, allowing the game to be played entirely through physical hardware.
 
-![GPIO Controller Setup](hardware/BreadboardGamepad.jpg)
+![GPIO Controller Setup](docs/boss.gif)
 
 See [`hardware/gpio_controller.py`](hardware/gpio_controller.py) for the full implementation.
 
